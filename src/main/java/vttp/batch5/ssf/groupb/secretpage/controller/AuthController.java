@@ -2,29 +2,29 @@ package vttp.batch5.ssf.groupb.secretpage.controller;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import jakarta.servlet.http.HttpSession;
-import vttp.batch5.ssf.groupb.secretpage.models.LoginForm;
+import jakarta.validation.Valid;
 
+import vttp.batch5.ssf.groupb.secretpage.models.LoginForm;
 import static vttp.batch5.ssf.groupb.secretpage.Constants.*;
 
 @Controller
-@RequestMapping(path={"/", "/index", "/login"})
-public class LoginController {
-
-    @GetMapping()
-    public String getLoginPage(Model model) {
-        
-        model.addAttribute("loginForm", new LoginForm());
-        
-        return "login";
-    }
+@RequestMapping
+public class AuthController {
 
     @PostMapping("/auth")
-    public String authLogin(LoginForm loginForm, HttpSession sess) {
+    public String authLogin(@Valid LoginForm loginForm, 
+                                    BindingResult bindings, 
+                                    HttpSession sess, 
+                                    Model model) 
+    {
+        if (bindings.hasErrors()) {
+            return "login";
+        }
 
         String currentUsername = loginForm.getUsername();
         String currentPassword = loginForm.getPassword();
@@ -38,6 +38,19 @@ public class LoginController {
             // Return the secret page
             return "secret";
         }
+
+        model.addAttribute("loginForm", new LoginForm());
+
+        return "login";
+    }
+
+    @PostMapping("/logout")
+    public String authLogout(HttpSession sess, Model model) {
+
+        // Destroy the session
+        sess.invalidate();
+
+        model.addAttribute("loginForm", new LoginForm());
 
         return "login";
     }

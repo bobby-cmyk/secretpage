@@ -1,7 +1,16 @@
 package vttp.batch5.ssf.groupb.secretpage.models;
 
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
+
 public class LoginForm {
+
+    @NotNull(message="Please provide your username")
+    @NotEmpty(message="Please provide your username")
     private String username;
+
+    @NotNull(message="Please provide your password")
+    @NotEmpty(message="Please provide your password")
     private String password;
 
     @Override

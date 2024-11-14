@@ -9,20 +9,19 @@ import jakarta.servlet.http.HttpSession;
 import vttp.batch5.ssf.groupb.secretpage.models.LoginForm;
 
 @Controller
-@RequestMapping(path={"/secret"})
-public class SecretController {
-    
-    @GetMapping
-    public String getSecretPage(Model model, HttpSession sess) {
+@RequestMapping(path={"/", "/index", "/login"})
+public class IndexController {
 
-        // Check if there's a user is authenticated and is not null
+    @GetMapping()
+    public String getIndexPage(Model model, HttpSession sess) {
+
+        // If user has already logged in, going to index will redirect to secret page
         if (sess.getAttribute("loginForm") != null) {
             return "secret";
         }
         
         model.addAttribute("loginForm", new LoginForm());
         
-        // If user is not authenticated, go back to login
-        return "login"; 
+        return "login";
     }
 }
