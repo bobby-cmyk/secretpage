@@ -3,6 +3,7 @@ package vttp.batch5.ssf.groupb.secretpage.controller;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
@@ -11,6 +12,8 @@ import jakarta.validation.Valid;
 
 import vttp.batch5.ssf.groupb.secretpage.models.LoginForm;
 import static vttp.batch5.ssf.groupb.secretpage.Constants.*;
+
+import java.util.Random;
 
 @Controller
 @RequestMapping
@@ -22,19 +25,6 @@ public class AuthController {
                                     HttpSession sess, 
                                     Model model) 
     {   
-        // Initialise the number of times
-        int loginAttempts = 0;
-
-        // If there are login attempts previously, retrieve the count from sess 
-        if (sess.getAttribute("loginAttempts") != null) {
-            loginAttempts = (int) sess.getAttribute("loginAttempts");
-        }
-       
-        // Check how many unsuccessful login attempts for this user (current session)
-        if (loginAttempts >= 3) {
-            return "account_locked";
-        }
-
         // Syntax validation to remind users to at least provide a non-empty username and password
         if (bindings.hasErrors()) {
             return "login";
@@ -52,13 +42,32 @@ public class AuthController {
             // Return the secret page
             return "secret";
         }
-    
+
+        // Initialise the number of times
+        int loginAttempts = 0;
+
+        // If there are login attempts previously, retrieve the count from sess 
+        if (sess.getAttribute("loginAttempts") != null) {
+            loginAttempts = (int) sess.getAttribute("loginAttempts");
+        }
+
         // if login is unsuccessful, add the number of count and set it in the sess
         loginAttempts++;
+        
+        // Check how many unsuccessful login attempts for this user (current session)
+        if (loginAttempts >= 3) {
+            return "account_locked";
+        }
+
+        ObjectError err = new ObjectError("globalError", "Username or password is incorrect");
+        bindings.addError(err);
 
         sess.setAttribute("loginAttempts", loginAttempts);
 
-        model.addAttribute("loginForm", new LoginForm());
+        model.addAttribute("loginAttempts", loginAttempts);
+        model.addAttribute("captcha", generateCaptcha());
+
+        System.out.printf("\n Login attempts: %d\n", loginAttempts);
 
         return "login";
     }
@@ -72,5 +81,19 @@ public class AuthController {
         model.addAttribute("loginForm", new LoginForm());
 
         return "login";
+    }
+
+    private String generateCaptcha() {
+
+        String captcha = "";
+
+        Random rand = new Random();
+
+        for (int i = 0; i < CAPTCHA_LENGTH; i++) {
+            // from puntuations to lowercase z in the ASCII
+            char c = (char) (rand.nextInt(91) + 33);
+            captcha += c;
+        }
+        return captcha;
     }
 }

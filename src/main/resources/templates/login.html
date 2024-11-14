@@ -39,12 +39,42 @@
                     </span>
                 </td>
             </tr>
+
+            <div data-th-if="${loginAttempts ge 2}">
+                <tr>
+                    <td></td>
+
+                    <td data-th-text="${captcha}" class="captcha"></td>
+
+                </tr>
+
+                <tr>
+                    <td>
+                        Captcha:
+                    </td>
+
+                    <td>
+                        <input type="text" name="*{captcha}">
+                    </td>
+
+                </tr>
+            </div>
+
             <tr>
                 <td></td>
                 <td>
                     <button type="submit">Login</button>
                 </td>
             </tr>
+
+            <div data-th-if="${#fields.hasErrors('global')}">
+                <tr>
+                    <td data-th-each="err: ${#fields.errors('global')}" class="error" colspan="2">
+                        <span data-th-text="${err}"></span>
+                    </td>
+                </tr>
+            </div>
+
         </table>
     </form>
 

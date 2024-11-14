@@ -3,3 +3,9 @@
     font-size: 0.8em;
     font-style: italic;
 }
+
+.captcha {
+    color:blue;
+    font-size: 0.9em;
+    font-style: italic;
+}
