@@ -21,7 +21,21 @@ public class AuthController {
                                     BindingResult bindings, 
                                     HttpSession sess, 
                                     Model model) 
-    {
+    {   
+        // Initialise the number of times
+        int loginAttempts = 0;
+
+        // If there are login attempts previously, retrieve the count from sess 
+        if (sess.getAttribute("loginAttempts") != null) {
+            loginAttempts = (int) sess.getAttribute("loginAttempts");
+        }
+       
+        // Check how many unsuccessful login attempts for this user (current session)
+        if (loginAttempts >= 3) {
+            return "account_locked";
+        }
+
+        // Syntax validation to remind users to at least provide a non-empty username and password
         if (bindings.hasErrors()) {
             return "login";
         }
@@ -38,6 +52,11 @@ public class AuthController {
             // Return the secret page
             return "secret";
         }
+    
+        // if login is unsuccessful, add the number of count and set it in the sess
+        loginAttempts++;
+
+        sess.setAttribute("loginAttempts", loginAttempts);
 
         model.addAttribute("loginForm", new LoginForm());
 

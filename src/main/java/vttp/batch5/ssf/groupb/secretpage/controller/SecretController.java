@@ -19,9 +19,9 @@ public class SecretController {
         if (sess.getAttribute("loginForm") != null) {
             return "secret";
         }
-        
+
         model.addAttribute("loginForm", new LoginForm());
-        
+
         // If user is not authenticated, go back to login
         return "login"; 
     }

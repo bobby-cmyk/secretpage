@@ -19,7 +19,7 @@ public class IndexController {
         if (sess.getAttribute("loginForm") != null) {
             return "secret";
         }
-        
+
         model.addAttribute("loginForm", new LoginForm());
         
         return "login";
