@@ -27,15 +27,20 @@ public class AuthController {
     {   
         // Syntax validation to remind users to at least provide a non-empty username and password
         if (bindings.hasErrors()) {
+                model.addAttribute("loginAttempts", sess.getAttribute("loginAttempts"));
+                String captcha = generateCaptcha();
+                model.addAttribute("captcha", captcha);
+                sess.setAttribute("captcha", captcha);
+
             return "login";
         }
 
         String currentUsername = loginForm.getUsername();
         String currentPassword = loginForm.getPassword();
-
+        
         // If the current username and password are correct
         if (currentUsername.equals(_USERNAME) && currentPassword.equals(_PASSWORD)) {
-
+            
             // Set the login information into the sess
             sess.setAttribute("loginForm", loginForm);
 
@@ -53,21 +58,28 @@ public class AuthController {
 
         // if login is unsuccessful, add the number of count and set it in the sess
         loginAttempts++;
+
+        sess.setAttribute("loginAttempts", loginAttempts);
+        model.addAttribute("loginAttempts", loginAttempts);
+
+        ObjectError err = new ObjectError("globalError", "Username or password is incorrect");
+        bindings.addError(err);
+
+        System.out.printf("\n Login attempts: %d\n", loginAttempts);
         
         // Check how many unsuccessful login attempts for this user (current session)
         if (loginAttempts >= 3) {
             return "account_locked";
         }
 
-        ObjectError err = new ObjectError("globalError", "Username or password is incorrect");
-        bindings.addError(err);
+        if (loginAttempts >= 2) {
 
-        sess.setAttribute("loginAttempts", loginAttempts);
+            String captcha = generateCaptcha();
+            model.addAttribute("captcha", captcha);
+            sess.setAttribute("captcha", captcha);
 
-        model.addAttribute("loginAttempts", loginAttempts);
-        model.addAttribute("captcha", generateCaptcha());
-
-        System.out.printf("\n Login attempts: %d\n", loginAttempts);
+            return "login";
+        }        
 
         return "login";
     }
