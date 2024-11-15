@@ -17,7 +17,7 @@ import java.util.Random;
 
 @Controller
 @RequestMapping
-public class AuthController {
+public class AuthController { 
 
     @PostMapping("/auth")
     public String authLogin(@Valid LoginForm loginForm, 
@@ -27,6 +27,7 @@ public class AuthController {
     {   
         // Syntax validation to remind users to at least provide a non-empty username and password
         if (bindings.hasErrors()) {
+
                 model.addAttribute("loginAttempts", sess.getAttribute("loginAttempts"));
                 String captcha = generateCaptcha();
                 model.addAttribute("captcha", captcha);
@@ -35,53 +36,56 @@ public class AuthController {
             return "login";
         }
 
+        // Retrieve the user input username and password
         String currentUsername = loginForm.getUsername();
         String currentPassword = loginForm.getPassword();
         
-        // If the current username and password are correct
-        if (currentUsername.equals(_USERNAME) && currentPassword.equals(_PASSWORD)) {
+        // If the current username and password are incorrect
+        if (!currentUsername.equals(_USERNAME) || !currentPassword.equals(_PASSWORD)) {
+
+            // Add a global error that authentication failed.
+            ObjectError err = new ObjectError("globalError", "Login failed. Username or password is incorrect");
+            bindings.addError(err);
+
+            // Initialise the number of times
+            int loginAttempts = 0;
+
+            // If there are login attempts previously, retrieve the count from sess 
+            if (sess.getAttribute("loginAttempts") != null) {
+                loginAttempts = (int) sess.getAttribute("loginAttempts");
+            }
+
+            // Add to count, set to sess, and add to model
+            loginAttempts++;
+            sess.setAttribute("loginAttempts", loginAttempts);
+            model.addAttribute("loginAttempts", loginAttempts);
+
+            System.out.printf("\n Login attempts: %d\n", loginAttempts);
             
-            // Set the login information into the sess
-            sess.setAttribute("loginForm", loginForm);
+            // Check how many unsuccessful login attempts for this user (current session)
+            if (loginAttempts >= 3) {
+                return "account_locked";
+            }
 
-            // Return the secret page
-            return "secret";
-        }
+            else if (loginAttempts >= 2) {
 
-        // Initialise the number of times
-        int loginAttempts = 0;
+                String captcha = generateCaptcha();
+                model.addAttribute("captcha", captcha);
+                sess.setAttribute("captcha", captcha);
 
-        // If there are login attempts previously, retrieve the count from sess 
-        if (sess.getAttribute("loginAttempts") != null) {
-            loginAttempts = (int) sess.getAttribute("loginAttempts");
-        }
-
-        // if login is unsuccessful, add the number of count and set it in the sess
-        loginAttempts++;
-
-        sess.setAttribute("loginAttempts", loginAttempts);
-        model.addAttribute("loginAttempts", loginAttempts);
-
-        ObjectError err = new ObjectError("globalError", "Username or password is incorrect");
-        bindings.addError(err);
-
-        System.out.printf("\n Login attempts: %d\n", loginAttempts);
-        
-        // Check how many unsuccessful login attempts for this user (current session)
-        if (loginAttempts >= 3) {
-            return "account_locked";
-        }
-
-        if (loginAttempts >= 2) {
-
-            String captcha = generateCaptcha();
-            model.addAttribute("captcha", captcha);
-            sess.setAttribute("captcha", captcha);
+                return "login";
+            }
 
             return "login";
-        }        
+        }
 
-        return "login";
+        // If authentication is successful!
+
+        // Set the login information into the sess to keep user logged in 
+        sess.setAttribute("loginForm", loginForm);
+
+        // Return the secret page
+        return "secret";   
     }
 
     @PostMapping("/logout")
