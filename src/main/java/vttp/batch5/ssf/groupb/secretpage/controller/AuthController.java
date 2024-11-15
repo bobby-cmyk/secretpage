@@ -7,6 +7,8 @@ import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import com.fasterxml.jackson.databind.node.NumericNode;
+
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 
@@ -44,7 +46,7 @@ public class AuthController {
         if (!currentUsername.equals(_USERNAME) || !currentPassword.equals(_PASSWORD)) {
 
             // Add a global error that authentication failed.
-            ObjectError err = new ObjectError("globalError", "Login failed. Username or password is incorrect");
+            ObjectError err = new ObjectError("globalError", "Login failed. Incorrect username/password.");
             bindings.addError(err);
 
             // Initialise the number of times
@@ -79,7 +81,7 @@ public class AuthController {
             return "login";
         }
 
-        // If authentication is successful!
+        // If authentication is successful...
 
         // Set the login information into the sess to keep user logged in 
         sess.setAttribute("loginForm", loginForm);
@@ -105,10 +107,15 @@ public class AuthController {
 
         Random rand = new Random();
 
-        for (int i = 0; i < CAPTCHA_LENGTH; i++) {
-            // from puntuations to lowercase z in the ASCII
-            char c = (char) (rand.nextInt(91) + 33);
-            captcha += c;
+        for (int i = 0; i < CAPTCHA_LENGTH/3; i++) {
+
+            char upperC = (char) (rand.nextInt(ALPHABET_COUNT) + START_INDEX_UPPER);
+            char lowerC = (char) (rand.nextInt(ALPHABET_COUNT) + START_INDEX_LOWER);
+            char numberC = (char) (rand.nextInt(NUMBER_COUNT) + START_INDEX_NUMBER);
+
+            captcha += upperC;
+            captcha += lowerC;
+            captcha += numberC;
         }
         return captcha;
     }

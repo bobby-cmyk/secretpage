@@ -21,9 +21,12 @@
                 </td>
                 <td>
                     <input type="text" data-th-field="*{username}">
+                    
+                </td>
+                <td>
                     <span data-th-if="${#fields.hasErrors('username')}"
-                            data-th-errors="*{username}"
-                            data-th-errorclass="error">
+                        data-th-errors="*{username}"
+                        data-th-errorclass="error">
                     </span>
                 </td>
             </tr>
@@ -33,18 +36,20 @@
                 </td>
                 <td>
                     <input type="password" data-th-field="*{password}">
+                </td>
+                <td>
                     <span data-th-if="${#fields.hasErrors('password')}"
                             data-th-errors="*{password}"
                             data-th-errorclass="error">
                     </span>
-                </td>
+                </td>   
             </tr>
 
             <div data-th-if="${loginAttempts ge 2}">
                 <tr>
                     <td></td>
 
-                    <td border=1 data-th-text="${captcha}" class="captcha"></td>
+                    <td data-th-text="${captcha}" class="captcha"></td>
 
                 </tr>
 
@@ -52,11 +57,15 @@
                     <td>
                         Captcha:
                     </td>
-
                     <td>
                         <input type="text" data-th-field="*{captcha}">
                     </td>
-
+                    <td>
+                        <span data-th-if="${#fields.hasErrors('captcha')}"
+                            data-th-errors="*{captcha}"
+                            data-th-errorclass="error">
+                        </span>
+                    </td>
                 </tr>
             </div>
 

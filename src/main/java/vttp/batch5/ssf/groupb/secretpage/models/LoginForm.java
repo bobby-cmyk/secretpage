@@ -2,17 +2,19 @@ package vttp.batch5.ssf.groupb.secretpage.models;
 
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
+import vttp.batch5.ssf.groupb.secretpage.validators.CaptchaConstraint;
 
 public class LoginForm {
 
-    @NotNull(message="Please provide your username")
-    @NotEmpty(message="Please provide your username")
+    @NotNull(message="*Please provide your username")
+    @NotEmpty(message="*Please provide your username")
     private String username;
 
-    @NotNull(message="Please provide your password")
-    @NotEmpty(message="Please provide your password")
+    @NotNull(message="*Please provide your password")
+    @NotEmpty(message="*Please provide your password")
     private String password;
 
+    @CaptchaConstraint(message = "*Captcha does not match!")
     private String captcha;
     
     public String getUsername() {
